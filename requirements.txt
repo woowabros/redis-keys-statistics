@@ -1,0 +1,3 @@
+redis
+redis-py-cluster
+prettytable
