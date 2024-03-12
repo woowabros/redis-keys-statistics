@@ -62,7 +62,7 @@ def get_redis_keys(r, batch_size, db_num, use_pretty):
     return analyze_redis_keys(min_heap, prefix_statistics_map, total_key_size, total_key_count, key_count_by_type, db_num, use_pretty)
 
 
-def get_redis_cluster_keys(rc, batch_size, replica_only, use_pretty):
+def get_redis_cluster_keys(rc, batch_size, replica_only, use_pretty, password, ssl, socket_timeout):
     slave_flag = False
 
     min_heap = []
@@ -96,7 +96,13 @@ def get_redis_cluster_keys(rc, batch_size, replica_only, use_pretty):
             node = next((node for node in nodes if node['id'] == master['master']), None)
         else:
             node = next((node for node in nodes if node['id'] == master['slaves'][0]), None)
-        r = redis.Redis(host=node['host'], port=node['port'])
+        r = redis.Redis(
+            host=node['host'],
+            port=node['port'],
+            ssl=ssl,
+            password=password,
+            socket_timeout=socket_timeout
+        )
         r.execute_command('READONLY')
 
         script = """
