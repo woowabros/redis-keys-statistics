@@ -41,7 +41,7 @@ def main():
                                       args.replica_only,
                                       args.pretty_format,
                                       args.password,
-                                      args.password,
+                                      args.ssl,
                                       CONNECTION_TIMEOUT) == -1:
                 print(f"Aborted the operation on non-readonly redis at host: {args.host}")
                 return
