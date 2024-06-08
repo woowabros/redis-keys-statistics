@@ -108,3 +108,6 @@ Contributions are welcome.
 
 ## Acknowledgements
 Special thanks to all contributors and users of the `redis-keys-statistics` tool.
+
+## License
+This tool is licensed under the MIT License. See the [LICENSE](https://github.com/woowabros/redis-keys-statistics/blob/main/LICENSE.md) file for details.
