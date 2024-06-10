@@ -2,13 +2,16 @@ import argparse
 import redis
 import rediscluster
 from datetime import datetime
+
 from .redis_utils import get_redis_keys, get_redis_cluster_keys
+
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze Redis Instance Key Statistics.')
     parser.add_argument('--host', required=True, help='Redis host')
     parser.add_argument('--port', required=True, help='Redis port')
     parser.add_argument('--password', default=None, help='Redis password')
+    parser.add_argument('--ssl', action='store_true', help='Enable SSL connection')
     parser.add_argument('--cluster', action='store_true', help='Enable cluster mode')
     parser.add_argument('--batch_size', type=int, default=1000, help='Batch size for SCAN command')
     parser.add_argument('--replica_only', action='store_true', help='Execute only on replica instances')
@@ -22,6 +25,7 @@ def main():
             rc = rediscluster.RedisCluster(startup_nodes=[{"host": args.host, "port": int(args.port)}],
                                            skip_full_coverage_check=True,
                                            password=args.password,
+                                           ssl=args.ssl,
                                            socket_timeout=CONNECTION_TIMEOUT)
 
             redis_info = rc.info()
@@ -32,7 +36,13 @@ def main():
 
             process_start_time = datetime.now()
 
-            if get_redis_cluster_keys(rc, args.batch_size, args.replica_only, args.pretty_format) == -1:
+            if get_redis_cluster_keys(rc,
+                                      args.batch_size,
+                                      args.replica_only,
+                                      args.pretty_format,
+                                      args.password,
+                                      args.ssl,
+                                      CONNECTION_TIMEOUT) == -1:
                 print(f"Aborted the operation on non-readonly redis at host: {args.host}")
                 return
 
@@ -56,6 +66,7 @@ def main():
         try:
             r = redis.Redis(host=args.host, port=int(args.port),
                             password=args.password,
+                            ssl=args.ssl,
                             socket_timeout=CONNECTION_TIMEOUT)
 
             redis_info = r.info()
