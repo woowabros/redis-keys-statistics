@@ -39,6 +39,7 @@ optional arguments:
   --host HOST           Redis host
   --port PORT           Redis port
   --password PASSWORD   Redis password
+  --ssl                 Enable SSL connection
   --cluster             Enable cluster mode
   --batch_size BATCH_SIZE
                         Batch size for SCAN command
