@@ -5,11 +5,16 @@ def analyze_redis_keys(min_heap, prefix_statistics_map, total_key_size, total_ke
 
     average_key_size = total_key_size / total_key_count if total_key_count != 0 else 0
 
-    print("\n" + "-"*25 + f"\nAnalyzing DB {db_num}\n" + "-"*25 + "\n")
+    print("\n" + "#"*25 + f"\nAnalyzing DB {db_num}\n" + "#"*25 + "\n")
+
+    average_key_size_pretty = average_key_size
+    if use_pretty:
+        average_key_size_pretty = format_memory_size(average_key_size_pretty)
+    print(f"Found: {total_key_count} keys, average size (per key): {average_key_size_pretty}\n")
 
     table = PrettyTable()
-    table.title = "Top 20 largest keys in Redis"
-    table.field_names = ["Key", "Type", "Size", "Size Ratio", "TTL"]
+    table.title = "Top 20 largest (individual) keys"
+    table.field_names = ["Key", "Type", "Size", "Size ratio (vs avg)", "TTL"]
 
     sorted_items = sorted(min_heap, key=lambda x: x[0], reverse=True)
 
@@ -39,19 +44,23 @@ def analyze_redis_keys(min_heap, prefix_statistics_map, total_key_size, total_ke
     print(table)
 
     table = PrettyTable()
-    table.title = "Detailed Prefix Statistics"
-    table.field_names = ["Prefix Name", "Count", "Average Size", "Max TTL", "Types"]
+    table.title = "Stats per prefix (sorted by 'total size')"
+    table.field_names = ["Key prefix", "Total Size", "Count", "Avg size per key", "Max TTL", "Types"]
 
-    for prefix, item in prefix_statistics_map.items():
+    sorted_prefix_stats = sorted(prefix_statistics_map.items(), key=lambda x: x[1]['total_size'], reverse=True)
 
-        prefix_average_size = round(item['total_size'] / item['count'], 2) if item['count'] != 0 else 0
+    for prefix, item in sorted_prefix_stats:
+
+        prefix_total_size = item['total_size']
+        prefix_average_size = round(prefix_total_size / item['count'], 2) if item['count'] != 0 else 0
 
         if use_pretty:
+            prefix_total_size = format_memory_size(prefix_total_size)
             prefix_average_size = format_memory_size(prefix_average_size)
 
         types = ""
         for key_type, type_count in item['type_count'].items():
             types += " - Type: {}, Count: {}\n".format(key_type.decode('utf-8'), type_count)
-        table.add_row([prefix.decode('utf-8', errors='ignore'), item['count'], prefix_average_size, item['max_ttl'], types])
+        table.add_row([prefix.decode('utf-8', errors='ignore'), prefix_total_size, item['count'], prefix_average_size, item['max_ttl'], types])
 
     print(table)

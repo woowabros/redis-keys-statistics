@@ -50,7 +50,7 @@ optional arguments:
 ## Example Output
 Here is an example of what the output from `redis-keys-statistics` might look like:
 
-### Top 20 Largest Keys in Redis
+### Top 20 largest (individual) keys
 ```
 +-------------------+------+---------+------------+-------+
 | Key               | Type | Size    | Size Ratio |  TTL  |
@@ -62,7 +62,6 @@ Here is an example of what the output from `redis-keys-statistics` might look li
 | temp:data:456     | set  | 500 KB  | 60% ↑      | 1800  |
 | ...               | ...  | ...     | ...        |  ...  |
 +-------------------+------+---------+------------+-------+
-
 ```
 
 ### Key Count by Type
@@ -76,28 +75,26 @@ Here is an example of what the output from `redis-keys-statistics` might look li
 | set    | 75    |
 | string | 200   |
 +--------+-------+
-
 ```
 
-### Detailed Prefix Statistics
+### Stats per prefix (sorted by 'total size')
 ```
-+-------------+-------+--------------+---------+-----------------+
-| Prefix Name | Count | Average Size | Max TTL | Types           |
-+-------------+-------+--------------+---------+-----------------+
-| user        | 100   | 200 KB       | 3600    | - Type: hash    |
-|             |       |              |         |   Count: 50     |
-|             |       |              |         | - Type: string  |
-|             |       |              |         |   Count: 50     |
-| cache       | 80    | 150 KB       | -1      | - Type: zset    |
-|             |       |              |         |   Count: 80     |
-| config      | 20    | 100 KB       | 86400   | - Type: hash    |
-|             |       |              |         |   Count: 20     |
-| temp        | 150   | 50 KB        | 1800    | - Type: set     |
-|             |       |              |         |   Count: 100    |
-|             |       |              |         | - Type: list    |
-|             |       |              |         |   Count: 50     |
-+-------------+-------+--------------+---------+-----------------+
-
++-------------+------------+-------+------------------+---------+-----------------+
+| Key prefix  | Total Size | Count | Avg size per key | Max TTL | Types           |
++-------------+------------+-------+------------------+---------+-----------------+
+| user        | 20 MB      | 100   | 200 KB           | 3600    | - Type: hash    |
+|             |            |       |                  |         |   Count: 50     |
+|             |            |       |                  |         | - Type: string  |
+|             |            |       |                  |         |   Count: 50     |
+| cache       | 12 MB      | 80    | 150 KB           | -1      | - Type: zset    |
+|             |            |       |                  |         |   Count: 80     |
+| temp        | 7.5 MB     | 150   | 50 KB            | 1800    | - Type: set     |
+|             |            |       |                  |         |   Count: 100    |
+|             |            |       |                  |         | - Type: list    |
+|             |            |       |                  |         |   Count: 50     |
+| config      | 2 MB       | 20    | 100 KB           | 86400   | - Type: hash    |
+|             |            |       |                  |         |   Count: 20     |
++-------------+------------+-------+------------------+---------+-----------------+
 ```
 
 ## Requirements
